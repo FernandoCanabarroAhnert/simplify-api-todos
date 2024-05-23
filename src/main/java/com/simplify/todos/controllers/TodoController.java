@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.simplify.todos.entities.Todo;
 import com.simplify.todos.services.TodoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -25,15 +27,21 @@ public class TodoController {
     private TodoService todoService;
 
     @PostMapping
-    public ResponseEntity<List<Todo>> create(@RequestBody Todo todo){
-        List<Todo> create = todoService.create(todo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(create);
+    public ResponseEntity<Todo>create(@RequestBody @Valid Todo todo){
+        todo = todoService.create(todo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(todo);
     }
 
     @GetMapping
-    public ResponseEntity<List<Todo>> list(){
-        List<Todo> list = todoService.list();
+    public ResponseEntity<List<Todo>> findAll(){
+        List<Todo> list = todoService.findAll();
         return ResponseEntity.ok().body(list);
+    }
+
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<Todo> findById(@PathVariable Long id){
+        Todo obj = todoService.findById(id);
+        return ResponseEntity.ok().body(obj);    
     }
 
     @PutMapping(value = "/{id}")
@@ -43,7 +51,7 @@ public class TodoController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
+    public ResponseEntity<Void> deleteById(@PathVariable Long id){
         todoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
