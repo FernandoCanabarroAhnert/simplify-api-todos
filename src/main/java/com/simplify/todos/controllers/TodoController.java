@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.simplify.todos.entities.Todo;
 import com.simplify.todos.services.TodoService;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -46,8 +47,13 @@ public class TodoController {
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<Todo> update(@PathVariable Long id, @RequestBody Todo todo){
-        todo = todoService.update(id, todo);
-        return ResponseEntity.ok().body(todo);
+        try{
+            todo = todoService.update(id, todo);
+            return ResponseEntity.ok().body(todo);
+        }
+        catch(EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @DeleteMapping(value = "/{id}")
