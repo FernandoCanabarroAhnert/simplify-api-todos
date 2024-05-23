@@ -17,11 +17,11 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler{
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
             HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleMethodArgumentNotValid(ex, headers, HttpStatus.UNPROCESSABLE_ENTITY, request);
+        return super.handleMethodArgumentNotValid(ex, headers, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    private ResponseEntity<Object> handleBadRequest(EmptyResultDataAccessException ex){
+    private ResponseEntity<Object> handleNotFound(EmptyResultDataAccessException ex){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

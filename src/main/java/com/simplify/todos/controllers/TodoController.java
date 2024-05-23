@@ -36,12 +36,18 @@ public class TodoController {
     @GetMapping
     public ResponseEntity<List<Todo>> findAll(){
         List<Todo> list = todoService.findAll();
+        if (list.isEmpty()){
+            return ResponseEntity.noContent().build();
+        }
         return ResponseEntity.ok().body(list);
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<Todo> findById(@PathVariable Long id){
         Todo obj = todoService.findById(id);
+        if (obj == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
         return ResponseEntity.ok().body(obj);    
     }
 
@@ -58,8 +64,13 @@ public class TodoController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id){
-        todoService.deleteById(id);
-        return ResponseEntity.noContent().build();
+        try{
+            todoService.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        catch(EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
 

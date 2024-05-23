@@ -32,7 +32,6 @@ import jakarta.persistence.EntityNotFoundException;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static com.simplify.todos.commons.TodosConstants.TODO;
-import static org.hamcrest.Matchers.hasSize;
 
 @WebMvcTest(TodoController.class)
 public class TodoControllerTest {
@@ -81,11 +80,11 @@ public class TodoControllerTest {
 
         mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(invalidTodo))
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().isBadRequest());
 
         mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(emptyTodo))
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -120,8 +119,7 @@ public class TodoControllerTest {
         when(todoService.findAll()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/todos"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$",hasSize(0)));
+        .andExpect(status().isNoContent());
     }
 
     @Test
