@@ -80,11 +80,11 @@ public class TodoControllerTest {
 
         mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(invalidTodo))
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isUnprocessableEntity());
 
         mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(emptyTodo))
         .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class TodoControllerTest {
 
     @Test
     public void findTodoById_withUnexistingId_returnsNotFound() throws Exception{
-        mockMvc.perform(get("/tasks/{id}", TODO.getId()))
+        mockMvc.perform(get("/todos/{id}", TODO.getId()))
                 .andExpect(status().isNotFound());
     }
 

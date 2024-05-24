@@ -2,6 +2,8 @@ package com.simplify.todos.entities;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,14 +43,6 @@ public class Todo implements Serializable{
 
     public Todo(@NotEmpty String nome, @NotEmpty String descricao, @NotEmpty Boolean realizado,
             @NotEmpty Integer prioridade) {
-        this.nome = nome;
-        this.descricao = descricao;
-        this.realizado = realizado;
-        this.prioridade = prioridade;
-    }
-
-    public Todo(Long id, String nome, String descricao, Boolean realizado, Integer prioridade) {
-        this.id = id;
         this.nome = nome;
         this.descricao = descricao;
         this.realizado = realizado;
@@ -96,28 +90,8 @@ public class Todo implements Serializable{
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        return result;
-    }
-
-    @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Todo other = (Todo) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
-        return true;
+        return EqualsBuilder.reflectionEquals(obj, this);
     }
 
     

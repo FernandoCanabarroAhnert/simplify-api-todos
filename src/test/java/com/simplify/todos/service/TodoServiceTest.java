@@ -29,7 +29,6 @@ import static com.simplify.todos.commons.TodosConstants.INVALIDTODO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
@@ -71,12 +70,12 @@ public class TodoServiceTest {
 
     @Test
     public void findByIdTodo_withExistingId_returnsTodo(){
-        when(todoRepository.findById(1L)).thenReturn(Optional.of(TODO));
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(todo));
 
         Todo sut = todoService.findById(1L);
 
         assertThat(sut).isNotNull();
-        assertThat(sut).isEqualTo(TODO);
+        assertThat(sut).isEqualTo(todo);
     }
 
     @Test
@@ -90,10 +89,10 @@ public class TodoServiceTest {
 
     @Test
     public void findAllTodos_returnsAllTodos(){
-        when(todoRepository.findAll()).thenReturn(Collections.singletonList(TODO));
+        when(todoRepository.findAll()).thenReturn(Collections.singletonList(todo));
 
         List<Todo> list = todoService.findAll();
-        assertEquals(1, list.size());
+        assertThat(list).hasSize(1);
         verify(todoRepository, times(1)).findAll();
     }
 
@@ -108,27 +107,19 @@ public class TodoServiceTest {
 
     @Test
     public void updateTodo_withValidData_returnsUpdatedTodo(){
-        Long id = 1L;
-        Todo existingTodo = new Todo();
-        existingTodo.setId(id);
-        existingTodo.setNome("Tarefa existente");
-        existingTodo.setDescricao("Descrição existente");
-        existingTodo.setRealizado(false);
-        existingTodo.setPrioridade(2);
-
         Todo updatedTodo = new Todo();
-        updatedTodo.setNome("Tarefa atualizada");
-        updatedTodo.setDescricao("Descrição atualizada");
+        updatedTodo.setNome("update");
+        updatedTodo.setDescricao("update");
         updatedTodo.setRealizado(true);
         updatedTodo.setPrioridade(1);
 
-        when(todoRepository.getReferenceById(id)).thenReturn(existingTodo);
-        when(todoRepository.save(any(Todo.class))).thenReturn(existingTodo);
+        when(todoRepository.getReferenceById(todo.getId())).thenReturn(todo);
+        when(todoRepository.save(any(Todo.class))).thenReturn(todo);
 
-        Todo result = todoService.update(id, updatedTodo);
+        Todo result = todoService.update(todo.getId(), updatedTodo);
 
-        assertThat(result.getNome()).isEqualTo("Tarefa atualizada");
-        assertThat(result.getDescricao()).isEqualTo("Descrição atualizada");
+        assertThat(result.getNome()).isEqualTo("update");
+        assertThat(result.getDescricao()).isEqualTo("update");
         assertThat(result.getRealizado()).isTrue();
         assertThat(result.getPrioridade()).isEqualTo(1);
     }
@@ -137,8 +128,8 @@ public class TodoServiceTest {
     public void updateTodo_withInvalidData_throwsException(){
         Long id = 999L;
         Todo updatedTodo = new Todo();
-        updatedTodo.setNome("Tarefa atualizada");
-        updatedTodo.setDescricao("Descrição atualizada");
+        updatedTodo.setNome("update");
+        updatedTodo.setDescricao("update");
         updatedTodo.setRealizado(true);
         updatedTodo.setPrioridade(1);
 
@@ -152,7 +143,7 @@ public class TodoServiceTest {
     }
 
     @Test
-    public void deleteTodoById_withExiistingId_doesNotThrowAnyException(){
+    public void deleteTodoById_withExistingId_doesNotThrowAnyException(){
         assertThatCode(() -> todoService.deleteById(1L)).doesNotThrowAnyException();
     }
 

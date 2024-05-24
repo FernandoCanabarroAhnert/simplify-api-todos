@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,10 +73,14 @@ public class TodoRepositoryTest {
 
     @Test
     public void findAllTodo_returnsAllTodos(){
-        List<Todo> list = new ArrayList<>();
-        list.add(TODO);
-        list.add(new Todo("nome2","descricao2",false,2));
-        list.add(new Todo("nome3","descricao3",false,3));
+        Todo todo1 = new Todo("nome2","descricao2",false,2);
+        Todo todo2 = new Todo("nome3","descricao3",false,3);
+
+        todoRepository.save(TODO);
+        todoRepository.save(todo1);
+        todoRepository.save(todo2);
+
+        List<Todo> list = todoRepository.findAll();
 
         assertThat(list).isNotEmpty();
         assertThat(list).hasSize(3);
@@ -86,35 +89,26 @@ public class TodoRepositoryTest {
 
     @Test
     public void findAllTodo_returnsNoTodos(){
-        List<Todo> list = new ArrayList<>();
-        list.add(new Todo());
-
-        list = todoRepository.findAll();
+        List<Todo> list = todoRepository.findAll();
 
         assertThat(list).isEmpty();
     }
 
     @Test
     public void updateTodo_withValidData_returnsUpdatedTodo() {
-        Todo todo = new Todo();
-        todo.setNome("Tarefa original");
-        todo.setDescricao("Descrição original");
-        todo.setRealizado(false);
-        todo.setPrioridade(2);
+        Todo todo = todoRepository.save(TODO);
 
-        Todo savedTodo = todoRepository.save(todo);
+        todo.setNome("Tarefa atualizada");
+        todo.setDescricao("Descrição atualizada");
+        todo.setRealizado(true);
+        todo.setPrioridade(1);
 
-        savedTodo.setNome("Tarefa atualizada");
-        savedTodo.setDescricao("Descrição atualizada");
-        savedTodo.setRealizado(true);
-        savedTodo.setPrioridade(1);
+        Todo updatedTodo = todoRepository.save(todo);
 
-        Todo updatedTodo = todoRepository.save(savedTodo);
-
-        assertThat(updatedTodo.getNome()).isEqualTo("Tarefa atualizada");
-        assertThat(updatedTodo.getDescricao()).isEqualTo("Descrição atualizada");
-        assertThat(updatedTodo.getRealizado()).isTrue();
-        assertThat(updatedTodo.getPrioridade()).isEqualTo(1);
+        assertThat(updatedTodo.getNome()).isEqualTo(todo.getNome());
+        assertThat(updatedTodo.getDescricao()).isEqualTo(todo.getDescricao());
+        assertThat(updatedTodo.getRealizado()).isEqualTo(todo.getRealizado());
+        assertThat(updatedTodo.getPrioridade()).isEqualTo(todo.getPrioridade());
     }
 
     @Test

@@ -79,7 +79,7 @@ public class TodoIT {
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(objectMapper.writeValueAsString(INVALIDTODO))
             .exchange()
-            .expectStatus().isBadRequest();
+            .expectStatus().isEqualTo(422);
     }
 
     @Test
