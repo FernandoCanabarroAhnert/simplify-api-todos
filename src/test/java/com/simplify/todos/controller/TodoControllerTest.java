@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,11 +67,13 @@ public class TodoControllerTest {
 
     @Test
     public void createTodo_withValidData_returnsCreated() throws Exception{
-        when(todoService.create(TODO)).thenReturn(TODO);
+        when(todoService.create(TODO)).thenReturn(List.of(TODO));
 
-        mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(TODO)).contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$").value(TODO));
+        mockMvc.perform(post("/todos")
+            .content(objectMapper.writeValueAsString(TODO))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$").isArray());
     }
 
     @Test
@@ -78,17 +81,19 @@ public class TodoControllerTest {
         Todo emptyTodo = new Todo();
         Todo invalidTodo = new Todo("", "", null, null);
 
-        mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(invalidTodo))
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        mockMvc.perform(post("/todos")
+            .content(objectMapper.writeValueAsString(invalidTodo))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
 
-        mockMvc.perform(post("/todos").content(objectMapper.writeValueAsString(emptyTodo))
-        .contentType(MediaType.APPLICATION_JSON))
-        .andExpect(status().isUnprocessableEntity());
+        mockMvc.perform(post("/todos")
+            .content(objectMapper.writeValueAsString(emptyTodo))
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    public void findTodoById_withExistingId_returnsPlanet() throws Exception{
+    public void findTodoById_withExistingId_returnsTodo() throws Exception{
         when(todoService.findById(1L)).thenReturn(TODO);
 
         mockMvc.perform(get("/todos/1"))
@@ -157,7 +162,7 @@ public class TodoControllerTest {
         final Long todoId = 1L;
         doThrow(new EmptyResultDataAccessException(1)).when(todoService).deleteById(todoId);
 
-        mockMvc.perform(delete("/todos" + todoId))
+        mockMvc.perform(delete("/todos/{id}" , todoId))
         .andExpect(status().isNotFound());
     }
 

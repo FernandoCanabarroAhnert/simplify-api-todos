@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -67,10 +68,7 @@ public class TodoIT {
             .exchange()
             .expectStatus().isCreated()
             .expectBody()
-            .jsonPath("$.nome").isEqualTo("nome")
-            .jsonPath("$.descricao").isEqualTo("descricao")
-            .jsonPath("$.realizado").isEqualTo(false)
-            .jsonPath("$.prioridade").isEqualTo(1);
+            .jsonPath("$").isArray();
     }
 
     @Test
@@ -80,21 +78,29 @@ public class TodoIT {
             .bodyValue(objectMapper.writeValueAsString(INVALIDTODO))
             .exchange()
             .expectStatus().isEqualTo(422);
+
+        Todo empty = new Todo();
+
+        webTestClient.post().uri("/todos")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(objectMapper.writeValueAsString(empty))
+            .exchange()
+            .expectStatus().isEqualTo(422);
     }
 
     @Test
     public void findTodoById_withExistingId_returnsTodo() throws Exception{
-        when(todoRepository.findById(1L)).thenReturn(Optional.of(TODO));
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(existingTodo));
 
         webTestClient.get().uri("/todos/1")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk()
             .expectBody()
-            .jsonPath("$.nome").isEqualTo("nome")
-            .jsonPath("$.descricao").isEqualTo("descricao")
+            .jsonPath("$.nome").isEqualTo("Tarefa existente")
+            .jsonPath("$.descricao").isEqualTo("Descrição existente")
             .jsonPath("$.realizado").isEqualTo(false)
-            .jsonPath("$.prioridade").isEqualTo(1);
+            .jsonPath("$.prioridade").isEqualTo(2);
     }
 
     @Test
@@ -162,6 +168,7 @@ public class TodoIT {
 
     @Test
     public void deleteTodoById_withExistingId_returnsNoContent() throws Exception{
+        when(todoRepository.findById(1L)).thenReturn(Optional.of(existingTodo));
         doNothing().when(todoRepository).deleteById(1L);
 
         webTestClient.delete().uri("/todos/1")
@@ -171,7 +178,7 @@ public class TodoIT {
 
     @Test
     public void deleteById_withUnexistingId_returnsNotFound() throws Exception{
-        doThrow(new EntityNotFoundException()).when(todoRepository).deleteById(999L);
+        doThrow(new EmptyResultDataAccessException(1)).when(todoRepository).deleteById(999L);
 
         webTestClient.delete().uri("/todos/999")
             .exchange()

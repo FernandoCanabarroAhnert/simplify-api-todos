@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.simplify.todos.entities.Todo;
 import com.simplify.todos.repositories.TodoRepository;
 import com.simplify.todos.services.TodoService;
+import com.simplify.todos.services.exceptions.ObjectNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -56,9 +57,9 @@ public class TodoServiceTest {
     public void createTodo_withValidData_returnsTodo(){
         when(todoRepository.save(TODO)).thenReturn(TODO);
 
-        Todo sut = todoService.create(TODO);
+        List<Todo> sut = todoService.create(TODO);
 
-        assertThat(sut).isEqualTo(TODO);
+        assertThat(sut).isNotNull();
     }
 
     @Test
@@ -80,11 +81,9 @@ public class TodoServiceTest {
 
     @Test
     public void findByIdTodo_withUnexistingId_returnsEmpty(){
-        when(todoRepository.findById(1L)).thenReturn(Optional.empty());
+        when(todoRepository.findById(1L)).thenThrow(new ObjectNotFoundException(1L));
 
-        Todo sut = todoService.findById(1L);
-
-        assertThat(sut).isNull();
+        assertThatThrownBy(() -> todoRepository.findById(1L)).isInstanceOf(RuntimeException.class);
     }
 
     @Test

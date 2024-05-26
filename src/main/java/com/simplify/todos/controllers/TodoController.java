@@ -3,6 +3,7 @@ package com.simplify.todos.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,24 +16,35 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.simplify.todos.entities.Todo;
+import com.simplify.todos.openApi.TodoControllerOpenAPI;
 import com.simplify.todos.services.TodoService;
+import com.simplify.todos.services.exceptions.ObjectNotFoundException;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/todos")
-public class TodoController {
+public class TodoController implements TodoControllerOpenAPI{
 
     @Autowired
     private TodoService todoService;
 
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201",description = "Retorna 201 se a Tarefa foi criada com sucesso"),
+        @ApiResponse(responseCode = "422",description = "Retorna 422 se a Tarefa foi criada com dados inválidos")}
+        )
     @PostMapping
-    public ResponseEntity<Todo>create(@RequestBody @Valid Todo todo){
-        todo = todoService.create(todo);
-        return ResponseEntity.status(HttpStatus.CREATED).body(todo);
+    public ResponseEntity<List<Todo>> create(@RequestBody @Valid Todo todo){
+        List<Todo> list = todoService.create(todo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(list);
     }
 
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",description = "Retorna 200 se existir tarefas criadas")}
+        )
     @GetMapping
     public ResponseEntity<List<Todo>> findAll(){
         List<Todo> list = todoService.findAll();
@@ -42,15 +54,20 @@ public class TodoController {
         return ResponseEntity.ok().body(list);
     }
 
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",description = "Retorna 200 se a Tarefa foi encontrada com sucesso"),
+        @ApiResponse(responseCode = "404",description = "Retorna 404 se o Id da Tarefa não existir")}
+        )
     @GetMapping(value = "/{id}")
     public ResponseEntity<Todo> findById(@PathVariable Long id){
         Todo obj = todoService.findById(id);
-        if (obj == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
         return ResponseEntity.ok().body(obj);    
     }
 
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",description = "Retorna 200 se a Tarefa foi encontrada e atualizada com sucesso"),
+        @ApiResponse(responseCode = "404",description = "Retorna 404 se o Id da Tarefa não existir")}
+        )
     @PutMapping(value = "/{id}")
     public ResponseEntity<Todo> update(@PathVariable Long id, @RequestBody Todo todo){
         try{
@@ -58,18 +75,23 @@ public class TodoController {
             return ResponseEntity.ok().body(todo);
         }
         catch(EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            throw new ObjectNotFoundException(id);
         }
     }
 
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204",description = "Retorna 204 se a Tarefa foi deletada com sucesso"),
+        @ApiResponse(responseCode = "404",description = "Retorna 404 se o Id da Tarefa não existir")}
+        )
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id){
         try{
+            todoService.findById(id);
             todoService.deleteById(id);
             return ResponseEntity.noContent().build();
         }
-        catch(EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        catch(EmptyResultDataAccessException e){
+            throw new ObjectNotFoundException(id);
         }
     }
 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.simplify.todos.entities.Todo;
 import com.simplify.todos.repositories.TodoRepository;
+import com.simplify.todos.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class TodoService {
@@ -16,8 +17,9 @@ public class TodoService {
     @Autowired
     private TodoRepository todoRepository;
 
-    public Todo create(Todo todo){
-        return todoRepository.save(todo);
+    public List<Todo> create(Todo todo){
+        todoRepository.save(todo);
+        return findAll();
     }
 
     public List<Todo> findAll(){
@@ -27,7 +29,7 @@ public class TodoService {
 
     public Todo findById(Long id){
         Optional<Todo> obj = todoRepository.findById(id);
-        return obj.orElse(null);
+        return obj.orElseThrow(() -> new ObjectNotFoundException(id));
     }
 
     public Todo update(Long id,Todo todo){
@@ -44,6 +46,7 @@ public class TodoService {
     }
 
     public void deleteById(Long id){
+        todoRepository.findById(id);
         todoRepository.deleteById(id);
     }
 
