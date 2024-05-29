@@ -24,6 +24,7 @@ API para gerenciar tarefas (CRUD) que faz parte [desse desafio](https://github.c
 - API REST
 - Consultas com Spring Data JPA
 - Injeção de Dependências
+- DTOs
 - Testes Unitários e Teste de Integração
 - Tratamento de Exceções Personalizada
 - Geração automática do Swagger com a OpenAPI 3
@@ -53,11 +54,10 @@ $ http POST http://localhost:8080/todos
 
 [
   {
-    "descricao": "Desc Todo 1",
-    "id": 1,
     "nome": "Todo 1",
-    "prioridade": 1,
-    "realizado": false
+    "descricao": "Desc Todo 1",
+    "realizado": false,
+    "prioridade": 1
   }
 ]
 ```
@@ -68,11 +68,11 @@ $ http GET http://localhost:8080/todos
 
 [
   {
-    "descricao": "Desc Todo 1",
     "id": 1,
     "nome": "Todo 1",
-    "prioridade": 1,
-    "realizado": false
+    "descricao": "Desc Todo 1",
+    "realizado": false,
+    "prioridade": 1
   }
 ]
 ```
@@ -83,11 +83,11 @@ $ http GET http://localhost:8080/todos/1
 
 [
   {
-    "descricao": "Desc Todo 1",
     "id": 1,
     "nome": "Todo 1",
-    "prioridade": 1,
-    "realizado": false
+    "descricao": "Desc Todo 1",
+    "realizado": false,
+    "prioridade": 1
   }
 ]
 ```
@@ -98,11 +98,11 @@ $ http PUT http://localhost:8080/todos/1
 
 [
   {
-    "descricao": "Desc Todo 1 Up",
     "id": 1,
     "nome": "Todo 1 Up",
-    "prioridade": 2,
-    "realizado": false
+    "descricao": "Desc Todo 1 Up",
+    "realizado": false,
+    "prioridade": 2
   }
 ]
 ```
