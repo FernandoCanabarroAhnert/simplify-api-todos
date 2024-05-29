@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.simplify.todos.dtos.TodoRequestDTO;
+import com.simplify.todos.dtos.TodoResponseDTO;
 import com.simplify.todos.entities.Todo;
 import com.simplify.todos.openApi.TodoControllerOpenAPI;
 import com.simplify.todos.services.TodoService;
@@ -37,8 +39,8 @@ public class TodoController implements TodoControllerOpenAPI{
         @ApiResponse(responseCode = "422",description = "Retorna 422 se a Tarefa foi criada com dados inválidos")}
         )
     @PostMapping
-    public ResponseEntity<List<Todo>> create(@RequestBody @Valid Todo todo){
-        List<Todo> list = todoService.create(todo);
+    public ResponseEntity<List<Todo>> create(@RequestBody @Valid TodoRequestDTO todo){
+        List<Todo> list = todoService.create(new Todo(todo));
         return ResponseEntity.status(HttpStatus.CREATED).body(list);
     }
 
@@ -46,8 +48,8 @@ public class TodoController implements TodoControllerOpenAPI{
         @ApiResponse(responseCode = "200",description = "Retorna 200 se existir tarefas criadas")}
         )
     @GetMapping
-    public ResponseEntity<List<Todo>> findAll(){
-        List<Todo> list = todoService.findAll();
+    public ResponseEntity<List<TodoResponseDTO>> findAll(){
+        List<TodoResponseDTO> list = todoService.findAll().stream().map(TodoResponseDTO::new).toList();
         if (list.isEmpty()){
             return ResponseEntity.noContent().build();
         }
@@ -59,9 +61,9 @@ public class TodoController implements TodoControllerOpenAPI{
         @ApiResponse(responseCode = "404",description = "Retorna 404 se o Id da Tarefa não existir")}
         )
     @GetMapping(value = "/{id}")
-    public ResponseEntity<Todo> findById(@PathVariable Long id){
+    public ResponseEntity<TodoResponseDTO> findById(@PathVariable Long id){
         Todo obj = todoService.findById(id);
-        return ResponseEntity.ok().body(obj);    
+        return ResponseEntity.ok().body(new TodoResponseDTO(obj));    
     }
 
     @ApiResponses(value = {

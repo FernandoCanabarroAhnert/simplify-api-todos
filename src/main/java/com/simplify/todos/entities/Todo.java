@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
+import com.simplify.todos.dtos.TodoRequestDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,6 +49,13 @@ public class Todo implements Serializable{
         this.descricao = descricao;
         this.realizado = realizado;
         this.prioridade = prioridade;
+    }
+
+    public Todo(TodoRequestDTO data) {
+        this.nome = data.nome();
+        this.descricao = data.descricao();
+        this.realizado = data.realizado();
+        this.prioridade = data.prioridade();
     }
 
     public Long getId() {
